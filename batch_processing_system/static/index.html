@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Processing System | Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css?v=1.0.8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dark-theme">
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">Batch Processing System</span>
+            </div>
+            <div class="nav-tabs">
+                <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+                <button class="tab-btn" data-tab="scheduler">Job Scheduler</button>
+                <button class="tab-btn" data-tab="monitoring">Monitoring</button>
+                <button class="tab-btn" data-tab="pipeline">Pipeline View</button>
+            </div>
+            <div class="nav-right" style="display: flex; align-items: center; gap: 1rem;">
+                <button id="theme-toggle" class="icon-btn" style="width: 40px; height: 40px; font-size: 1.2rem; border-radius: 50%;" title="Toggle Light/Dark Mode">🌓</button>
+                <div class="status-badge">
+                    <span class="pulse"></span> System Online
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard-tab" class="tab-content active">
+            <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h1>Analytics Overview</h1>
+                    <p>Real-time insights from your latest batch processing jobs.</p>
+                </div>
+                <button class="primary-btn" onclick="downloadFullHistory()" style="background: #10b981; font-size: 0.85rem;">📊 Full Export (PDF)</button>
+            </header>
+
+            <section class="stats-grid">
+                <div class="stat-card glass">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Volume</span>
+                        <h3 id="total-amount">₹0.00</h3>
+                    </div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon" style="background: white; overflow: hidden;">
+                        <img src="https://static.vecteezy.com/system/resources/previews/055/782/993/non_2x/financial-cycle-a-circular-arrow-surrounding-a-coin-symbolizing-money-flow-and-transactions-vector.jpg" alt="Transactions" style="width: 75px; height: 75px; object-fit: contain;">
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Transactions</span>
+                        <h3 id="total-count">0</h3>
+                    </div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Jobs Completed</span>
+                        <h3 id="completed-count">0</h3>
+                    </div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon" style="font-size: 2.2rem;">❌</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Jobs Failed</span>
+                        <h3 id="failed-count" style="color: #ef4444;">0</h3>
+                    </div>
+                </div>
+            </section>
+
+            <section class="controls-section glass">
+                <div class="control-group">
+                    <h3>Manual Job Trigger</h3>
+                    <div class="input-row">
+                        <input type="date" id="job-date" class="dark-input">
+                        <button id="trigger-btn" class="primary-btn">Execute Batch</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <div class="glass" style="padding: 1.5rem; min-height: 350px;">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; opacity: 0.8;">📈 Volume Processing Velocity</h3>
+                    <div style="height: 250px; position: relative;">
+                        <canvas id="volumeChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass" style="padding: 1.5rem; min-height: 350px;">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; opacity: 0.8;">🎯 Job Success Distribution</h3>
+                    <div style="height: 250px; position: relative; display: flex; justify-content: center;">
+                        <canvas id="successChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="table-section glass">
+                <h3>Recent Batch Reports</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Report Date</th>
+                                <th>Total Amount</th>
+                                <th>Transactions</th>
+                                <th>Processed At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reports-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- SCHEDULER TAB -->
+        <div id="scheduler-tab" class="tab-content">
+            <header class="dashboard-header">
+                <h1>Job Scheduler</h1>
+                <p>Manage and automate your periodic batch processing tasks.</p>
+            </header>
+
+            <section class="controls-section glass">
+                <div class="control-group">
+                    <h3>Create New Scheduled Job</h3>
+                    <div class="scheduler-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 1rem; align-items: flex-end; margin-top: 1rem;">
+                        <div class="input-group">
+                            <label>Job Name</label>
+                            <input type="text" id="new-job-name" class="dark-input" placeholder="e.g. Daily Audit">
+                        </div>
+                        <div class="input-group">
+                            <label>Start Time</label>
+                            <input type="time" id="new-job-start" class="dark-input">
+                        </div>
+                        <div class="input-group">
+                            <label>End Time</label>
+                            <input type="time" id="new-job-end" class="dark-input">
+                        </div>
+                        <div class="input-group">
+                            <label>Duration</label>
+                            <input type="text" id="new-job-duration" class="dark-input" placeholder="Auto" readonly style="opacity: 0.6; cursor: not-allowed;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button id="create-job-btn" class="primary-btn" style="width: 200px;">Create Job</button>
+                    </div>
+                    <!-- Hidden field to satisfy API expectation for schedule_time -->
+                    <input type="hidden" id="new-job-cron" value="Daily">
+                </div>
+            </section>
+
+            <section class="table-section glass">
+                <h3>Active Schedules Panel</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Job Name</th>
+                                <th>Status</th>
+                                <th>Time Window</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduled-jobs-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- MONITORING TAB -->
+        <div id="monitoring-tab" class="tab-content">
+            <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h1>Job Monitoring</h1>
+                    <p>Track execution status, logs, and failure handling in real-time.</p>
+                </div>
+                <button class="primary-btn" onclick="downloadExecutionHistory()" style="background: #6366f1; font-size: 0.85rem;">📄 Export History (PDF)</button>
+            </header>
+
+            <section class="table-section glass">
+                <h3>Execution History</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Job Name</th>
+                                <th>Duration</th>
+                                <th>Retry</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="job-logs-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- PIPELINE TAB -->
+        <div id="pipeline-tab" class="tab-content">
+            <header class="dashboard-header">
+                <h1>Processing Pipeline & DAG</h1>
+                <p>Visualization of data flow and job dependencies.</p>
+            </header>
+
+            <section class="glass" style="margin-bottom: 2rem;">
+                <h3>Data Flow Pipeline</h3>
+                <div class="pipeline-view">
+                    <div class="node">
+                        <div class="node-icon">📁</div>
+                        <span>Data Source (SQLite)</span>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="node">
+                        <div class="node-icon">⚙️</div>
+                        <span>Processing (Pandas)</span>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="node">
+                        <div class="node-icon">🔢</div>
+                        <span>Aggregation</span>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="node">
+                        <div class="node-icon">📄</div>
+                        <span>Output (Report)</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="glass">
+                <h3>Job Dependencies (DAG)</h3>
+                <div class="pipeline-view dag-view">
+                    <div class="node success">
+                        <span>Check Data</span>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="node active">
+                        <span>Process Batch</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 65%;"></div></div>
+                        <small>65%</small>
+                    </div>
+                    <div class="arrow">→</div>
+                    <div class="node pending">
+                        <span>Generate PDF</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Modal for Job Details -->
+    <div id="job-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <header class="modal-header">
+                <h2 id="modal-job-name">Job Details</h2>
+                <button id="close-modal">×</button>
+            </header>
+            <div class="modal-body">
+                <div class="detail-row"><span>Start Time:</span> <span id="det-start">-</span></div>
+                <div class="detail-row"><span>End Time:</span> <span id="det-end">-</span></div>
+                <div class="detail-row"><span>Duration:</span> <span id="det-dur">-</span></div>
+                <div class="detail-row"><span>Retry Count:</span> <span id="det-retry">-</span></div>
+                <div class="detail-row"><span>Error Message:</span> <span id="det-error" style="color: #ef4444;">-</span></div>
+                <div class="logs-container">
+                    <h4>Logs:</h4>
+                    <pre id="det-logs"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-area"></div>
+    <script src="/static/script.js?v=1.0.8"></script>
+</body>
+</html>

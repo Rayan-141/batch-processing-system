@@ -1,0 +1,165 @@
+/* ... existing styles ... */
+
+.nav-tabs {
+    display: flex;
+    gap: 1rem;
+}
+
+.tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-dim);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.tab-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Pipeline View */
+.pipeline-view {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 2rem 1rem;
+    gap: 1rem;
+}
+
+.node {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 140px;
+    text-align: center;
+    position: relative;
+}
+
+.node-icon { font-size: 1.5rem; }
+
+.arrow {
+    font-size: 1.5rem;
+    color: var(--text-dim);
+}
+
+.node.success { border-color: var(--accent); color: var(--accent); }
+.node.active { border-color: var(--primary); color: var(--primary); }
+.node.pending { opacity: 0.5; }
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 0.25rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary);
+    animation: loading-anim 2s infinite ease-in-out;
+}
+
+@keyframes loading-anim {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 600px;
+    padding: 2rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.modal-header h2 { font-family: 'Outfit'; }
+
+#close-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logs-container {
+    margin-top: 1.5rem;
+}
+
+.logs-container h4 { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+#det-logs {
+    background: #000;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #10b981;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.status-tag {
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-success { background: rgba(16, 185, 129, 0.2); color: var(--accent); }
+.status-running { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.status-failed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.status-paused { background: rgba(148, 163, 184, 0.2); color: var(--text-dim); }
